@@ -1,23 +1,26 @@
-import {z} from 'zod'
-import { Hono } from 'hono'
-import { handle } from 'hono/vercel'
-import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
+import { Hono } from "hono";
+import { handle } from "hono/vercel";
 
-export const runtine = "edge"
+import accounts from "./accounts";
+import { HTTPException } from "hono/http-exception";
 
-const app = new Hono().basePath("/api")
+export const runtine = "edge";
 
-app.get('/',
-    clerkMiddleware(),
-    (c) => {
-        const auth = getAuth(c)
-        if (!auth?.userId) {
-            
-        }
-  return c.json({
-    message: "Hello World"
-  })
+const app = new Hono().basePath("/api");
+
+app.onError((err, c) => {
+    if (err instanceof HTTPException) {
+        return err.getResponse()
+    }
+
+    return c.json({error: "Internal Error"}, 500)
 })
 
-export const GET = handle(app)
-export const POST = handle(app)
+const routes = app.route("/accounts", accounts);
+
+app.route("/accounts", accounts);
+
+export const GET = handle(app);
+export const POST = handle(app);
+
+export type AppType = typeof routes;
