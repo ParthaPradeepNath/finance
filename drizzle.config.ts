@@ -4,10 +4,11 @@ import { defineConfig } from "drizzle-kit";
 config({ path: ".env.local" });
 
 export default defineConfig({
-  schema: "./db/schema.ts", // path to your schema file
-  driver: "pg",
+  schema: "./db/schema.ts",          // path to your schema file
+  out: "./drizzle",                  // migrations folder
+  dialect: "postgresql",             // required
   dbCredentials: {
-    connectionString: process.env.DATABASE_URL!,
+    url: process.env.DATABASE_URL!,  // must be "postgresql://..."
   },
   verbose: true,
   strict: true,
