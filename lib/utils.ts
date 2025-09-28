@@ -1,8 +1,8 @@
-import { twMerge } from "tailwind-merge"
-import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge";
+import { clsx, type ClassValue } from "clsx";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export function convertAmountFromMiliunits(amount: number) {
@@ -11,4 +11,12 @@ export function convertAmountFromMiliunits(amount: number) {
 
 export function convertAmountToMiliunits(amount: number) {
   return Math.round(amount * 1000);
+}
+
+export function formatCurrency(value: number) {
+  return Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 2,
+  }).format(value);
 }
