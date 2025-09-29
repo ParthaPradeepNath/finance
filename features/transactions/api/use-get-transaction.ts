@@ -17,10 +17,10 @@ export const useGetTransaction = (id?: string) => {
       }
 
       const { data } = await response.json();
-      return  {
+      return {
         ...data,
         amount: convertAmountFromMiliunits(data.amount),
-      }
+      };
     },
   });
 

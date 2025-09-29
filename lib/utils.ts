@@ -70,7 +70,7 @@ type Period = {
   to: string | Date | undefined;
 };
 
-export function fromatDateRange(period?: Period) {
+export function formatDateRange(period?: Period) {
   const defaultTo = new Date();
   const defaultFrom = subDays(defaultTo, 30);
 

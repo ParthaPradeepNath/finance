@@ -1,16 +1,15 @@
 import { create } from "zustand";
 
 type OpenTransactionState = {
-    id?: string;
+  id?: string;
   isOpen: boolean;
   onOpen: (id: string) => void;
   onClose: () => void;
 };
 
 export const useOpenTransaction = create<OpenTransactionState>((set) => ({
-    id: undefined,
+  id: undefined,
   isOpen: false,
   onOpen: (id: string) => set({ isOpen: true, id }),
   onClose: () => set({ isOpen: false, id: undefined }),
 }));
-

@@ -1,8 +1,9 @@
 import { InferRequestType, InferResponseType } from "hono";
+import { toast } from "sonner";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { client } from "@/lib/hono";
-import { toast } from "sonner";
 
 type ResponseType = InferResponseType<
   (typeof client.api.transactions)[":id"]["$patch"]
@@ -26,7 +27,7 @@ export const useEditTransaction = (id?: string) => {
       toast.success("Transaction updated");
       queryClient.invalidateQueries({ queryKey: ["transaction", {id}] });
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
-      // TODO: Invalidate summary
+      queryClient.invalidateQueries({ queryKey: ["summary"] });
     },
     onError: () => {
       toast.error("Failed to edit transaction");
