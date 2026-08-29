@@ -8,8 +8,8 @@ type Props = {
 const DashboardLayout = ({ children }: Props) => {
   return (
     <>
-    <Header />
-      <main className="px-3 lg:px-14">
+      <Header />
+      <main id="main-content" className="px-3 lg:px-14" tabIndex={-1}>
         <Suspense>{children}</Suspense>
       </main>
     </>

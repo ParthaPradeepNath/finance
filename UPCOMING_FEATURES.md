@@ -175,39 +175,3 @@ Backlog: Multi-Currency → Orgs → Audit Log → Tax → Investments
 
 Pick a feature from Phase 1, create branch `feat/budgets`, add migration via `bun run db:generate`, implement Hono route + hooks mirroring `features/categories/*` structure, update this file's checklist.
 
-*Last updated: 2026-08-29*
-
-
-
-1. Code Quality — Shows Senior Habits
-- lib/env.ts — zod validation for DATABASE_URL, CLERK_*, NEXT_PUBLIC_APP_URL (fail fast, typed process.env)
-- lib/hono.ts:1 typed client — add OpenAPI docs (hono-openapi) for portfolio
-- Security headers in next.config.ts:3 — headers() with CSP, HSTS, X-Frame-Options — interviewers ask this
-- Rate limiting + zod validation already on summary.ts:14 — add to all routes via Hono middleware
-- app/(dashboard)/error.tsx, loading.tsx, not-found.tsx + ErrorBoundary around components/data-grid.tsx/data-charts.tsx
-2. Testing — Biggest Gap (**/*.test.* = 0 files, .github/**/* = 0)
-- Unit: vitest for lib/utils.ts (calculatePercentageChange, fillMissingDays, milinuts conversion) + db/schema.ts zod schemas
-- API: Hono route tests for accounts/categories/transactions/summary with mocked db + auth
-- E2E: playwright + @clerk/testing (clerk-testing skill) — sign-in → create account → create transaction → verify chart
-- Coverage badge + bun run test in package.json:5
-3. DevOps / Deploy — You Have Docker, Missing CI/CD
-- GitHub Actions: .github/workflows/ci.yml — bun install && bun lint && tsc && bun test && bun build + Drizzle migrate check. Add deploy.yml to Vercel.
-- Live Demo: Deploy to Vercel (uses Dockerfile:17 Node build workaround) + Neon prod DB + envs. Interviewers want URL, not localhost:3000.
-- DB: Document drizzle/ migrations in README, add scripts/seed.ts with realistic demo data (currently requires manual SEED_USER_ID)
-- Dependabot + Renovate + bun.lock caching
-4. Reliability & Observability
-- Monitoring: Sentry (@sentry/nextjs) + posthog/vercel analytics — show error tracking in interview
-- Logging: structured logs for app/api/[[...route]]/*.ts, requestId middleware
-- Health check: app/api/health/route.ts (DB ping) for Docker/k8s
-5. Performance & UX Polish (Lighthouse 90+)
-- Add next.config.ts images, compress, bundle-analyzer, react-query caching (features/*/api/use-get-*.ts already uses TanStack Query)
-- Skeleton loaders for DataGrid, DataCharts; optimistic updates on use-create-*
-- Accessibility: axe audit on components/ui/* (shadcn), keyboard nav, sonner toasts with aria
-- SEO: app/layout.tsx metadata, robots.txt, sitemap
-6. Docs & Portfolio Story (What Gets You Hired)
-- README: Add badges (build passing, coverage), GIF/screenshots of dashboard + CSV import, architecture diagram Next.js 16 → Hono → Drizzle → Neon, live URL + test login (clerk test user)
-- Decision log: Why milinuts README.md:137-145, Neon HTTP vs pg, Turbopack — shows tradeoff thinking
-- Resume bullet: Tech: Next.js 16/Turbopack, Clerk, Hono, Drizzle, Neon, TanStack Query/Table, recharts, Docker, Vercel + metrics p95 <200ms, 100% type-safe API
-- Demo script (2 min): Auth → CSV import → filter → chart → bulk delete — practice explaining proxy.ts:4-10 middleware isolation
-Do in order for interview: Fix build (30m) → Env validation + headers (1h) → Deploy to Vercel with real DB (2h) → Add 3 unit + 1 Playwright test (1 day) → Add CI + README GIF (2h) → Sentry.
-Want me to scaffold this as PRODUCTION_CHECKLIST.md + generate lib/env.ts, .github/workflows/ci.yml, and app/api/health starter?

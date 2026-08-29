@@ -46,24 +46,29 @@ export const Navigation = () => {
   if (isMobile) {
     return (
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetTrigger>
+        <SheetTrigger asChild>
           <Button
+            aria-label="Open navigation menu"
             variant="outline"
             size="sm"
             className="font-normal bg-white/10 hover:bg-white/20 hover:text-white border-none focus-visible:ring-offset-0 focus-visible:ring-transparent outline-none text-white focus:bg-white/30 transition"
           >
-            <Menu className="size-4" />
+            <Menu className="size-4" aria-hidden="true" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="px-2">
-          <nav className="flex flex-col gap-y-2 pt-6">
+        <SheetContent side="left" className="px-2" aria-label="Navigation menu">
+          <nav className="flex flex-col gap-y-2 pt-6" aria-label="Primary">
             {routes.map((route) => (
               <Button
                 key={route.href}
+                aria-label={route.label}
+                aria-current={route.href === pathname ? "page" : undefined}
                 variant={route.href === pathname ? "secondary" : "ghost"}
                 onClick={() => onClick(route.href)}
                 className="w-full justify-start"
-              ></Button>
+              >
+                {route.label}
+              </Button>
             ))}
           </nav>
         </SheetContent>
@@ -72,7 +77,7 @@ export const Navigation = () => {
   }
 
   return (
-    <nav className="hiden lg:flex items-center gap-x-2 overflow-x-auto">
+    <nav className="hiden lg:flex items-center gap-x-2 overflow-x-auto" aria-label="Primary">
       {routes.map((route) => (
         <NavButton
           key={route.href}

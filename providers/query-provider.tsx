@@ -12,9 +12,16 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        // With SSR, we usually want to set some default staleTime
-        // above 0 to avoid refetching immediately on the client
-        staleTime: 60 * 1000,
+        // Lighthouse + UX: cache summary 30s (dashboard polls), others 60s; avoid waterfall refetch
+        staleTime: 30 * 1000,
+        gcTime: 5 * 60 * 1000,
+        retry: 1,
+        refetchOnWindowFocus: false,
+        // TanStack Query v5 — keepPreviousData for filters pagination
+        // placeholderData: keepPreviousData,
+      },
+      mutations: {
+        retry: 0,
       },
     },
   })

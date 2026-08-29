@@ -34,18 +34,28 @@ const securityHeaders = [
   },
 ];
 
+const baseConfig: NextConfig = {
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
+  // Performance: optimize heavy deps (recharts, lucide, radux) — tree-shake
+  experimental: {
+    optimizePackageImports: ["lucide-react", "recharts", "react-icons", "@radix-ui/react-dialog", "@radix-ui/react-select", "date-fns"],
+  },
+  images: {
+    formats: ["image/avif", "image/webp"],
+    remotePatterns: [
+      { protocol: "https", hostname: "**.clerk.com" },
+      { protocol: "https", hostname: "**.clerk.accounts.dev" },
+      { protocol: "https", hostname: "img.clerk.com" },
+    ],
+  },
+  async headers() {
+    return [{ source: "/(.*)", headers: securityHeaders }];
+  },
+};
+
 const nextConfig: NextConfig =
-  process.env.STANDALONE === "true"
-    ? {
-        output: "standalone",
-        async headers() {
-          return [{ source: "/(.*)", headers: securityHeaders }];
-        },
-      }
-    : {
-        async headers() {
-          return [{ source: "/(.*)", headers: securityHeaders }];
-        },
-      };
+  process.env.STANDALONE === "true" ? { ...baseConfig, output: "standalone" } : baseConfig;
 
 export default nextConfig;
