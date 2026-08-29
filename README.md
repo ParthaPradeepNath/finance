@@ -1,54 +1,149 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Finance
+
+A full-stack personal finance tracker built with **Next.js 16**, **Clerk** authentication, a **Hono** API, and **Neon Postgres** (Drizzle ORM). Track accounts, categories, and transactions, import CSV bank exports, and visualize your income and expenses.
+
+## Features
+
+- **Authentication** — Clerk sign-in / sign-up; every user's data is isolated and scoped to their account.
+- **Accounts · Categories · Transactions** — full CRUD through a fully typed Hono API (REST, loosely-typed client with `InferResponseType`).
+- **Dashboard** — income vs. expenses over time, category-by-category breakdown (recharts), animated summary metrics, and a date-range + account filter bar.
+- **Transactions table** — sorting, per-column filtering, pagination, row selection, and bulk delete (TanStack Table v9).
+- **CSV import** — paste or upload a CSV, map columns, preview, and only insert what you've mapped.
+- **Featured tooling** — server + client validation with zod, forms with react-hook-form, `shadcn/ui` components on Tailwind CSS 4.
+
+## Tech Stack
+
+| Layer       | Choice                                                        |
+| ----------- | ------------------------------------------------------------- |
+| Framework   | Next.js 16 (App Router, Turbopack)                            |
+| UI          | React 19 · TypeScript · Tailwind CSS 4 · shadcn/ui            |
+| Auth        | Clerk (middleware route protection via `proxy.ts`)            |
+| API         | Hono (App Router route handler) · @hono/zod-validator         |
+| Database    | Neon (serverless Postgres) · Drizzle ORM                      |
+| Data layer  | TanStack Query · TanStack Table · recharts                    |
+| Data handling | zod · react-hook-form · react-papaparse · query-string      |
+| Package     | bun                                                           |
+
+## Requirements
+
+- **Node** ≥ 20.9 (Next.js 16 requirement)
+- **bun** (package manager + scripts). [Install bun](https://bun.sh)
+- **Clerk** app — [dashboard.clerk.com](https://dashboard.clerk.com)
+- **Neon** Postgres project — [console.neon.tech](https://console.neon.tech)
+- **Docker** + Docker Compose (optional, for containerized deployment)
 
 ## Getting Started
 
-First, run the development server:
+### 1. Install dependencies
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure environment variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`.env.local` is read by both Next.js at runtime and the Drizzle tooling (`drizzle.config.ts`, `scripts/migrate.ts`, `scripts/seed.ts`). Fill in the values:
 
-## Learn More
+| Variable                              | Description                                      | Example                                       |
+| ------------------------------------- | ------------------------------------------------ | --------------------------------------------- |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`   | Clerk publishable key (dashboard → API Keys)     | `pk_test_...`                                 |
+| `CLERK_SECRET_KEY`                    | Clerk secret key (never expose client-side)      | `sk_test_...`                                 |
+| `DATABASE_URL`                        | Neon connection string                           | `postgres://user:pass@host.neon.tech/dbname`  |
+| `NEXT_PUBLIC_APP_URL`                 | Base URL of the app                              | `http://localhost:3000`                       |
 
-To learn more about Next.js, take a look at the following resources:
+> Tip: `npx clerk@latest env pull` writes your Clerk keys automatically. The Neon connection string lives in your Neon project's **Connect** dialog (HTTP pooling).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. Set up the database
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+bun run db:generate   # generate SQL migrations from db/schema.ts (dev)
+bun run db:migrate    # apply pending migrations to your DB
+```
 
-## Deploy on Vercel
+Optionally seed sample data (edit `SEED_USER_ID` in `scripts/seed.ts` first):
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+bun run ./scripts/seed.ts
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 4. Run the app
 
-Storing currency in Databases
+```bash
+bun run dev
+```
 
-1. Float/Double (no go, they do not offer precision they might look good and easy to store it that way but they are not precise when the moment you start calculating they will turn into a bunch of errors)
-eg. 0.1 * 0.2 = 0.020000000000000004
+Open [http://localhost:3000](http://localhost:3000), sign in, and start adding accounts.
 
-2. Decimal / Numeric ?
- - But Numeric and Decimal does not exist in J.S
- - Requires us to use additional libs
- - Not cross-language compatible (Requires to change the stack and find a way to support the type in the databse also)
-- Create problem in end to end type safety specially when it comes to forms
+## Scripts
 
-3. come up with a solution
+| Script                | Description                                          |
+| --------------------- | ---------------------------------------------------- |
+| `bun run dev`         | Start the development server (Turbopack)             |
+| `bun run build`       | Production build (type-check + static generation)    |
+| `bun run start`       | Serve the production build                           |
+| `bun run lint`        | ESLint (flat config)                                 |
+| `bun run db:generate` | Generate a new Drizzle migration                     |
+| `bun run db:migrate`  | Apply migrations against `DATABASE_URL`              |
+| `bun run db:studio`   | Open Drizzle Studio for the schema                   |
 
-Using integers of the smallest unit of the currency
--We are going to use milinuts to support 3 decimals 
-- cross-language compatible
-- $10.50 => 10500
+## Docker
+
+A multi-stage `Dockerfile` produces a minimal standalone Next.js image; `docker-compose.yml` wires it up.
+
+```bash
+docker compose up --build -d   # build + start on :3000
+docker compose down            # stop and remove the container
+```
+
+- Runtime secrets come from your local environment / `.env` (see `environment:` in `docker-compose.yml`); they are **not** baked into the image.
+- Public variables (`NEXT_PUBLIC_*`) are also passed as build args so they get inlined into the client bundle.
+- The image is a standalone Next.js server (`node server.js`), so run DB migrations from the host:
+
+```bash
+bun run db:migrate
+```
+
+Build the image directly if you don't use Compose:
+
+```bash
+docker build --build-arg NEXT_PUBLIC_APP_URL=https://example.com -t finance-web .
+```
+
+## Project Structure
+
+```
+app/
+├── (auth)/sign-in, (auth)/sign-up   # Clerk auth pages
+├── (dashboard)/                     # protected app shell + nav
+│   ├── page.tsx                     # dashboard (summary + charts)
+│   ├── accounts/  categories/  transactions/
+└── api/[[...route]]/                # single Hono handler (typed REST API):
+    ├── route.ts                     #   GET|POST|DELETE|PATCH/PUT
+    ├── accounts.ts  categories.ts  transactions.ts  summary.ts
+components/                          # shadcn/ui + feature components (charts, data table, CSV import)
+features/                            # per-domain API hooks + components
+db/schema.ts                         # Drizzle schema (accounts, categories, transactions)
+db/drizzle.ts                        # Neon + Drizzle client
+lib/hono.ts                          # typed API client for the browser
+lib/utils.ts                         # cn(), currency/date helpers
+proxy.ts                             # Clerk middleware (route protection)
+scripts/migrate.ts  seed.ts          # DB migrations + seed
+```
+
+## Currency Storage — why "milinuts"
+
+Amounts are stored as **integers of the smallest unit** (milinuts, `1/1000` of a currency unit) rather than `FLOAT`/`DOUBLE` or `DECIMAL`:
+
+1. **Float/Double — no.** No precision guarantees; accumulated arithmetic drifts (`0.1 * 0.2 === 0.020000000000000004`).
+2. **Decimal/Numeric — awkward in JS.** No native JS type, extra libraries, and breaks end-to-end type safety (forms pick this up immediately).
+3. **Solution — integers of the smallest unit.** Using "milinuts" gives 3 decimals of precision, stays cross-language compatible, works with plain JS numbers in forms and APIs, and stores cleanly in a Postgres `integer` column.
+
+Example: `$10.50 => 10500`.
+
+## License
+
+Private project — no license specified.
