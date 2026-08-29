@@ -1,7 +1,9 @@
 import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
 
-config({ path: ".env.local" });
+// Load .env first, then .env.local overrides (supports both setups)
+config({ path: ".env" });
+config({ path: ".env.local", override: true });
 
 export default defineConfig({
   schema: "./db/schema.ts",          // path to your schema file

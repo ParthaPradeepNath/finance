@@ -4,7 +4,8 @@ import { drizzle } from "drizzle-orm/neon-http";
 import {neon} from "@neondatabase/serverless";
 import {categories, accounts, transactions} from "@/db/schema";
 
-config({path: ".env.local"})
+config({path: ".env"})
+config({path: ".env.local", override: true})
 
 const sql = neon(process.env.DATABASE_URL!);
 const db = drizzle(sql);
