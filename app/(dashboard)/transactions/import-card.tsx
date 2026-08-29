@@ -4,6 +4,9 @@ import { useState } from "react";
 import { ImportTable } from "./import-table";
 import { convertAmountToMiliunits } from "@/lib/utils";
 import { format, parse } from "date-fns";
+import { transactions as transactionSchema } from "@/db/schema";
+
+type TransactionInsert = typeof transactionSchema.$inferInsert;
 
 const dateFormat = "yyyy-MM-dd HH:mm:ss";
 const outputFormat = "yyyy-MM-dd";
@@ -17,7 +20,7 @@ interface SelectedColumnsState {
 type Props = {
   data: string[][];
   onCancel: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: TransactionInsert[]) => void;
 };
 
 export const ImportCard = ({ data, onCancel, onSubmit }: Props) => {
@@ -78,9 +81,9 @@ export const ImportCard = ({ data, onCancel, onSubmit }: Props) => {
     // console.log({ mappedData }); -> only forwarded those field which are only selected in the row headers to the backend
 
     const arrayOfData = mappedData.body.map((row) => {
-      return row.reduce((acc: any, cell, index) => {
+      return row.reduce<Record<string, string>>((acc, cell, index) => {
         const header = mappedData.headers[index];
-        if (header !== null) {
+        if (header !== null && cell !== null) {
           acc[header] = cell;
         }
         return acc;
@@ -97,7 +100,7 @@ export const ImportCard = ({ data, onCancel, onSubmit }: Props) => {
 
     // console.log({ formattedData }); -> converted date and amount in milliunits so that the backend can handle it
 
-    onSubmit(formattedData);
+    onSubmit(formattedData as unknown as TransactionInsert[]);
   };
 
   return (

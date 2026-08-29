@@ -4,6 +4,7 @@ import { Navigation } from "./navigation";
 import { Loader2 } from "lucide-react";
 import { WelcomeMsg } from "./welcome-msg";
 import { Filters } from "./filters";
+import { Suspense } from "react";
 
 export const Header = () => {
   return (
@@ -15,14 +16,16 @@ export const Header = () => {
             <Navigation />
           </div>
           <ClerkLoaded>
-            <UserButton afterSignOutUrl="/" />
+            <UserButton />
           </ClerkLoaded>
           <ClerkLoading>
             <Loader2 className="size-8 animate-spin text-slate-400" />
           </ClerkLoading>
         </div>
         <WelcomeMsg />
-        <Filters />
+        <Suspense>
+          <Filters />
+        </Suspense>
       </div>
     </header>
   );

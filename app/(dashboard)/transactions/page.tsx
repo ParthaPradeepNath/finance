@@ -22,9 +22,15 @@ enum VARIANTS {
   IMPORT = "IMPORT",
 }
 
-const INITIAL_IMPORT_RESULTS = {
+type ImportResult = {
+  data: string[][];
+  errors: unknown[];
+  meta: Record<string, unknown>;
+};
+
+const INITIAL_IMPORT_RESULTS: ImportResult = {
   data: [],
-  error: [],
+  errors: [],
   meta: {},
 };
 

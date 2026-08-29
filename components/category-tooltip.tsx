@@ -1,13 +1,13 @@
-import { format } from "date-fns";
+import type { TooltipContentProps } from "recharts";
 
 import { formatCurrency } from "@/lib/utils";
 
 import { Separator } from "./ui/separator";
 
-export const CategoryTooltip = ({ active, payload }: any) => {
-  if (!active) return null;
+export const CategoryTooltip = ({ active, payload }: TooltipContentProps<number, string>) => {
+  if (!active || !payload?.length) return null;
 
-  const name = payload[0].payload.name;
+  const name = payload[0].payload?.name;
   const value = payload[0].value;
 
   return (
@@ -23,7 +23,7 @@ export const CategoryTooltip = ({ active, payload }: any) => {
             <p className="text-sm text-muted-foreground">Expenses</p>
           </div>
           <p className="text-sm text-right font-medium">
-            {formatCurrency(value * -1)}
+            {formatCurrency((value ?? 0) * -1)}
           </p>
         </div>
       </div>

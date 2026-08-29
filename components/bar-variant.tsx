@@ -31,7 +31,7 @@ export const BarVariant = ({ data }: Props) => {
           style={{ fontSize: "12px" }}
           tickMargin={16}
         />
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip content={CustomTooltip} />
         <Bar 
         dataKey="income"
         fill="#3b82f6"

@@ -28,10 +28,10 @@ export const PieVariant = ({ data }: Props) => {
           align="right"
           verticalAlign="bottom"
           iconType="circle"
-          content={({ payload }: any) => {
+          content={({ payload }) => {
             return (
               <ul className="flex flex-col space-y-2">
-                {payload.map((entry: any, index: number) => (
+                {(payload ?? []).map((entry, index) => (
                   <li
                     key={`item-${index}`}
                     className="flex items-center space-x-2"
@@ -45,7 +45,9 @@ export const PieVariant = ({ data }: Props) => {
                         {entry.value}
                       </span>
                       <span className="text-sm">
-                        {formatPercentage(entry.payload.percent * 100)}
+                        {formatPercentage(
+                          ((entry.payload as unknown as { percent?: number } | undefined)?.percent ?? 0) * 100
+                        )}
                       </span>
                     </div>
                   </li>
@@ -54,7 +56,7 @@ export const PieVariant = ({ data }: Props) => {
             );
           }}
         />
-        <Tooltip content={<CategoryTooltip />} />
+        <Tooltip content={CategoryTooltip} />
         <Pie
           data={data}
           cx="50%"
