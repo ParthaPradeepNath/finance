@@ -6,13 +6,19 @@ import {
   ColumnDef,
   ColumnFiltersState,
   Row,
+  RowData,
   SortingState,
+  columnFilteringFeature,
+  columnVisibilityFeature,
+  createFilteredRowModel,
+  createPaginatedRowModel,
+  createSortedRowModel,
   flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
+  rowPaginationFeature,
+  rowSelectionFeature,
+  rowSortingFeature,
+  tableFeatures,
+  useTable,
 } from "@tanstack/react-table";
 
 import {
@@ -29,21 +35,34 @@ import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/hooks/use-confirm";
 import { Trash } from "lucide-react";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+const features = tableFeatures({
+  rowSelectionFeature,
+  rowSortingFeature,
+  columnFilteringFeature,
+  rowPaginationFeature,
+  columnVisibilityFeature,
+  sortedRowModel: createSortedRowModel(),
+  filteredRowModel: createFilteredRowModel(),
+  paginatedRowModel: createPaginatedRowModel(),
+});
+
+export type TableFeatures = typeof features;
+
+type DataTableProps<TData extends RowData> = {
+  columns: ColumnDef<TableFeatures, TData>[];
   data: TData[];
   filterKey: string;
-  onDelete: (rows: Row<TData>[]) => void;
+  onDelete: (rows: Row<TableFeatures, TData>[]) => void;
   disabled?: boolean;
-}
+};
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends RowData>({
   columns,
   data,
   filterKey,
   onDelete,
   disabled,
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps<TData>) {
   const [ConfirmDialog, confirm] = useConfirm(
     "Are you sure?",
     "This will permanently delete the selected accounts."
@@ -54,15 +73,12 @@ export function DataTable<TData, TValue>({
   );
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const table = useReactTable({
+  const table = useTable<TableFeatures, TData>({
+    features,
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
     onRowSelectionChange: setRowSelection,
 
     state: {

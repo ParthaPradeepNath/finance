@@ -4,11 +4,11 @@ import { formatCurrency } from "@/lib/utils";
 
 import { Separator } from "./ui/separator";
 
-export const CategoryTooltip = ({ active, payload }: TooltipContentProps<number, string>) => {
+export const CategoryTooltip = ({ active, payload }: TooltipContentProps) => {
   if (!active || !payload?.length) return null;
 
   const name = payload[0].payload?.name;
-  const value = payload[0].value;
+  const value = payload[0].value as number;
 
   return (
     <div className="rounded-sm bg-white shadow-sm border overflow-hidden">
@@ -23,7 +23,7 @@ export const CategoryTooltip = ({ active, payload }: TooltipContentProps<number,
             <p className="text-sm text-muted-foreground">Expenses</p>
           </div>
           <p className="text-sm text-right font-medium">
-            {formatCurrency((value ?? 0) * -1)}
+            {formatCurrency(value * -1)}
           </p>
         </div>
       </div>

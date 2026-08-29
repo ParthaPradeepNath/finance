@@ -8,13 +8,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { InferResponseType } from "hono";
 import { client } from "@/lib/hono";
 import { Actions } from "./actions";
+import type { TableFeatures } from "@/components/data-table";
 
 export type ResponseType = InferResponseType<
   typeof client.api.categories.$get,
   200
 >["data"][0];
 
-export const columns: ColumnDef<ResponseType>[] = [
+export const columns: ColumnDef<TableFeatures, ResponseType>[] = [
   {
     id: "select",
     header: ({ table }) => (

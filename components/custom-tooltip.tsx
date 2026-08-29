@@ -5,12 +5,12 @@ import { formatCurrency } from "@/lib/utils";
 
 import { Separator } from "./ui/separator";
 
-export const CustomTooltip = ({ active, payload }: TooltipContentProps<number, string>) => {
+export const CustomTooltip = ({ active, payload }: TooltipContentProps) => {
   if (!active || !payload || payload.length < 2) return null;
 
   const date = payload[0].payload?.date;
-  const income = payload[0].value;
-  const expenses = payload[1].value;
+  const income = payload[0].value as number;
+  const expenses = payload[1].value as number;
 
   return (
     <div className="rounded-sm bg-white shadow-sm border overflow-hidden">
@@ -25,7 +25,7 @@ export const CustomTooltip = ({ active, payload }: TooltipContentProps<number, s
             <p className="text-sm text-muted-foreground">Income</p>
           </div>
           <p className="text-sm text-right font-medium">
-            {formatCurrency(income ?? 0)}
+            {formatCurrency(income)}
           </p>
         </div>
         <div className="flex items-center justify-between gap-x-4">
@@ -34,7 +34,7 @@ export const CustomTooltip = ({ active, payload }: TooltipContentProps<number, s
             <p className="text-sm text-muted-foreground">Expenses</p>
           </div>
           <p className="text-sm text-right font-medium">
-            {formatCurrency((expenses ?? 0) * -1)}
+            {formatCurrency(expenses * -1)}
           </p>
         </div>
       </div>

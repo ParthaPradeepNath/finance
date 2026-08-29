@@ -49,7 +49,11 @@ export const RadialVariant = ({ data }: Props) => {
           content={({ payload }) => {
             return (
               <ul className="flex flex-col space-y-2">
-                {(payload ?? []).map((entry, index) => (
+                {(payload ?? []).map((entry, index) => {
+                  const value = (
+                    entry.payload as { value?: number } | undefined
+                  )?.value;
+                  return (
                   <li
                     key={`item-${index}`}
                     className="flex items-center space-x-2"
@@ -63,11 +67,12 @@ export const RadialVariant = ({ data }: Props) => {
                         {entry.value}
                       </span>
                       <span className="text-sm">
-                        {formatCurrency(entry.payload?.value)}
+                        {formatCurrency(value ?? 0)}
                       </span>
                     </div>
                   </li>
-                ))}
+                );
+                })}
               </ul>
             );
           }}

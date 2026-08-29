@@ -75,7 +75,7 @@ export const DateFilter = () => {
       <PopoverContent className="lg:w-auto w-full p-0" align="start">
         <Calendar
           disabled={false}
-          initialFocus
+          autoFocus
           mode="range"
           defaultMonth={date?.from}
           onSelect={setDate}

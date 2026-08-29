@@ -1,7 +1,7 @@
 import * as React from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { SelectSingleEventHandler } from "react-day-picker";
+import { OnSelectHandler } from "react-day-picker";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -14,7 +14,7 @@ import {
 
 type Props = {
   value?: Date;
-  onChange?: SelectSingleEventHandler;
+  onChange?: OnSelectHandler<Date | undefined>;
   disabled?: boolean;
 };
 
@@ -40,7 +40,7 @@ export const DatePicker = ({ value, onChange, disabled }: Props) => {
           selected={value}
           onSelect={onChange}
           disabled={disabled}
-          initialFocus
+          autoFocus
         />
       </PopoverContent>
     </Popover>
