@@ -1,0 +1,23 @@
+# dependencies
+node_modules
+.next
+out
+
+# git
+.git
+.gitignore
+
+# env (never ship secrets into the image)
+.env
+.env*.local
+
+# logs / misc
+*.log
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+
+# docker
+Dockerfile
+docker-compose.yml
+.dockerignore
