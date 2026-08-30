@@ -124,7 +124,7 @@ import { db } from "@/db/drizzle";
 import { getAuth } from "@hono/clerk-auth";
 const mockedGetAuth = vi.mocked(getAuth);
 
-beforeEach(() => mockedGetAuth.mockReturnValue({ userId: "user_1" } as any));
+beforeEach(() => mockedGetAuth.mockReturnValue({ userId: "user_1" } as ReturnType<typeof getAuth>));
 
 // Drizzle chaining: chainable(data) returns a Proxy that resolves to `data` when awaited
 // Any chain like db.select(...).from(...).where(...) awaits to the mocked data

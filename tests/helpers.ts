@@ -1,30 +1,44 @@
-import { vi } from "vitest";
+import type { Mock } from "vitest";
 
-/** Create a chainable mock that resolves to `data` when awaited.
- *  Any property access (from, where, returning, etc.) returns a function
- *  that returns the same proxy, allowing arbitrary Hono/Drizzle chaining.
+export type ChainableMock<T> = Promise<T> & {
+  [K in string]: (...args: unknown[]) => ChainableMock<T>;
+};
+
+/** Drizzle/Hono chain mock: every property access returns a function that
+ *  returns the same proxy, and `then`/`catch` make it awaitable.
+ *  No `any` — all args are `unknown`, return is typed `ChainableMock<T>`.
  */
-export function chainable(data: unknown) {
-  const proxy: any = new Proxy(
-    {},
-    {
-      get(_target, prop) {
-        if (prop === "then") {
-          return (onFulfilled: any, onRejected: any) =>
-            Promise.resolve(data).then(onFulfilled, onRejected);
-        }
-        if (prop === "catch") {
-          return (onRejected: any) => Promise.resolve(data).catch(onRejected);
-        }
-        // Symbol async iterator etc not needed
-        if (typeof prop === "symbol") return undefined;
-        // Return a function that returns the proxy for chaining
-        return (..._args: unknown[]) => proxy;
-      },
-    }
-  );
-  return proxy;
+export function chainable<T>(data: T): ChainableMock<T> {
+  const proxy = new Proxy({} as Record<string | symbol, unknown>, {
+    get(_target: Record<string | symbol, unknown>, prop: string | symbol): unknown {
+      if (prop === "then") {
+        return (
+          onFulfilled?: ((value: T) => unknown) | null,
+          onRejected?: ((reason: unknown) => unknown) | null
+        ): Promise<unknown> => Promise.resolve(data).then(onFulfilled, onRejected);
+      }
+      if (prop === "catch") {
+        return (onRejected?: ((reason: unknown) => unknown) | null): Promise<unknown> =>
+          Promise.resolve(data).catch(onRejected);
+      }
+      if (typeof prop === "symbol") return undefined;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      return (..._args: unknown[]): ChainableMock<T> => proxy as unknown as ChainableMock<T>;
+    },
+  });
+  return proxy as unknown as ChainableMock<T>;
 }
 
-/** Helper to create a mock Hono context for rate-limiter etc — not needed for route tests (use app.request) */
-export const mockAuth = (userId: string | null) => userId ? { userId } : null;
+export type MockDrizzleDb = {
+  select: Mock<(...args: unknown[]) => ChainableMock<unknown>>;
+  insert: Mock<(...args: unknown[]) => ChainableMock<unknown>>;
+  delete: Mock<(...args: unknown[]) => ChainableMock<unknown>>;
+  update: Mock<(...args: unknown[]) => ChainableMock<unknown>>;
+  with: Mock<(...args: unknown[]) => ChainableMock<unknown>>;
+  $with: Mock<(...args: unknown[]) => { as: Mock<(...args: unknown[]) => ChainableMock<unknown>> }>;
+};
+
+export type MockAuthReturn = { userId: string } | null;
+
+export type ApiErrorBody = { error: string };
+export type ApiDataBody<D> = { data: D };

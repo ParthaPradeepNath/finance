@@ -3,9 +3,15 @@ import { render, screen } from "@testing-library/react";
 import { DataCard, DataCardLoading } from "@/components/data-card";
 import { PiggyBank } from "lucide-react";
 
-// Mock recharts not needed for DataCard
+type CountUpProps = {
+  end: number;
+  formattingFn?: (value: number) => string;
+};
+
 vi.mock("@/components/count-up", () => ({
-  CountUp: ({ end, formattingFn }: any) => <span data-testid="countup">{formattingFn ? formattingFn(end) : end}</span>,
+  CountUp: ({ end, formattingFn }: CountUpProps) => (
+    <span data-testid="countup">{formattingFn ? formattingFn(end) : String(end)}</span>
+  ),
 }));
 
 describe("DataCard", () => {

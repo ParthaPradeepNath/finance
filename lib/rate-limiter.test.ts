@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Hono } from "hono";
+import type { Context } from "hono";
 import { rateLimiter } from "@/lib/rate-limiter";
+import type { ApiErrorBody } from "@/tests/helpers";
 
 describe("rateLimiter", () => {
   beforeEach(() => {
@@ -12,7 +14,7 @@ describe("rateLimiter", () => {
     vi.restoreAllMocks();
   });
 
-  function createApp(opts: { windowMs: number; max: number; keyGenerator?: (c: any) => string }) {
+  function createApp(opts: { windowMs: number; max: number; keyGenerator?: (c: Context) => string }) {
     const app = new Hono();
     app.use("*", rateLimiter(opts));
     app.get("/test", (c) => c.json({ ok: true }));
@@ -34,7 +36,7 @@ describe("rateLimiter", () => {
     await app.request("/test", { headers: { "x-forwarded-for": "2.2.2.2" } });
     const res = await app.request("/test", { headers: { "x-forwarded-for": "2.2.2.2" } });
     expect(res.status).toBe(429);
-    const body = await res.json() as any;
+    const body = (await res.json()) as ApiErrorBody;
     expect(body.error).toMatch(/Too many requests/);
   });
 

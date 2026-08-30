@@ -12,7 +12,6 @@ describe("db/schema - table definitions", () => {
   it("accounts table has correct columns", () => {
     // drizzle table columns are defined; check basic existence via schema objects
     expect(accounts).toBeDefined();
-    // @ts-expect-error - check internal shape
     expect(accounts.userId).toBeDefined();
     expect(accounts.name).toBeDefined();
     expect(accounts.id).toBeDefined();

@@ -1,6 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { openApiSpec } from "@/lib/openapi";
 
+type Paths = typeof openApiSpec.paths;
+type TransactionsPath = Paths["/transactions"];
+
 describe("openApiSpec", () => {
   it("has correct OpenAPI version", () => {
     expect(openApiSpec.openapi).toBe("3.1.0");
@@ -18,12 +21,11 @@ describe("openApiSpec", () => {
   });
 
   it("defines security scheme for clerk", () => {
-    expect(openApiSpec.components.securitySchemes.clerk).toEqual({
-      type: "http",
-      scheme: "bearer",
-      bearerFormat: "JWT",
-      description: expect.any(String),
-    });
+    const clerk = openApiSpec.components.securitySchemes.clerk;
+    expect(clerk.type).toBe("http");
+    expect(clerk.scheme).toBe("bearer");
+    expect(clerk.bearerFormat).toBe("JWT");
+    expect(typeof clerk.description).toBe("string");
   });
 
   it("defines core schemas", () => {
@@ -36,9 +38,13 @@ describe("openApiSpec", () => {
   });
 
   it("defines Transaction schema with miliunits amount", () => {
-    const tx = openApiSpec.components.schemas.Transaction as any;
-    expect(tx.properties.amount.description).toContain("milinuts");
-    expect(tx.properties.amount.type).toBe("integer");
+    const txProps = openApiSpec.components.schemas.Transaction.properties as unknown as Record<
+      string,
+      { type: string; description?: string }
+    >;
+    const amount = txProps["amount"] as { type: string; description: string };
+    expect(amount.description).toContain("milinuts");
+    expect(amount.type).toBe("integer");
   });
 
   it("defines all expected paths", () => {
@@ -58,7 +64,7 @@ describe("openApiSpec", () => {
   });
 
   it("defines transactions query params", () => {
-    const getTransactions = (openApiSpec.paths["/transactions"] as any).get;
+    const getTransactions = (openApiSpec.paths["/transactions"] as TransactionsPath).get;
     expect(getTransactions.parameters).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ name: "from" }),
@@ -74,7 +80,7 @@ describe("openApiSpec", () => {
 
   it("has valid JSON-serializable structure", () => {
     expect(() => JSON.stringify(openApiSpec)).not.toThrow();
-    const parsed = JSON.parse(JSON.stringify(openApiSpec));
+    const parsed = JSON.parse(JSON.stringify(openApiSpec)) as typeof openApiSpec;
     expect(parsed.openapi).toBe("3.1.0");
   });
 });

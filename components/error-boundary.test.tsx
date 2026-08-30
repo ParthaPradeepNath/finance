@@ -1,8 +1,9 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect, vi, beforeAll, afterAll } from "vitest";
+import { render, screen } from "@testing-library/react";
 import { ErrorBoundary } from "@/components/error-boundary";
+import type { ErrorInfo } from "react";
 
-const ThrowError = ({ shouldThrow }: { shouldThrow: boolean }) => {
+const ThrowError = ({ shouldThrow }: { shouldThrow: boolean }): React.JSX.Element => {
   if (shouldThrow) throw new Error("Test error message");
   return <div>Child content</div>;
 };
@@ -57,7 +58,7 @@ describe("ErrorBoundary", () => {
 
   it("resets error state on Try again click", () => {
     // This test verifies the button exists and is clickable; actual reset requires error not re-thrown
-    const { container } = render(
+    render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
       </ErrorBoundary>
@@ -76,7 +77,8 @@ describe("ErrorBoundary", () => {
   it("componentDidCatch logs error", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     const instance = new ErrorBoundary({ children: <div /> });
-    instance.componentDidCatch(new Error("oops"), { componentStack: "stack" } as any);
+    const errorInfo: ErrorInfo = { componentStack: "stack" };
+    instance.componentDidCatch(new Error("oops"), errorInfo);
     // Should call console.error (our spy)
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();

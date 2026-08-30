@@ -1,13 +1,13 @@
 import "@testing-library/jest-dom/vitest";
+import { beforeAll, afterAll } from "vitest";
 
 // Mock ResizeObserver (required by react-select, recharts, radix)
 class MockResizeObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
 }
-// @ts-ignore
-global.ResizeObserver = MockResizeObserver;
+(globalThis as unknown as { ResizeObserver: typeof MockResizeObserver }).ResizeObserver = MockResizeObserver;
 
 // Mock matchMedia (required by next-themes, radix)
 Object.defineProperty(window, "matchMedia", {
@@ -29,16 +29,17 @@ Element.prototype.scrollIntoView = () => {};
 
 // Mock IntersectionObserver
 class MockIntersectionObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-  takeRecords() { return []; }
-  root = null;
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+  takeRecords(): IntersectionObserverEntry[] { return []; }
+  root: Element | Document | null = null;
   rootMargin = "";
-  thresholds = [];
+  thresholds: ReadonlyArray<number> = [];
+  dispatchEvent = (): boolean => false;
 }
-// @ts-ignore
-global.IntersectionObserver = MockIntersectionObserver;
+(globalThis as unknown as { IntersectionObserver: typeof MockIntersectionObserver }).IntersectionObserver =
+  MockIntersectionObserver;
 
 // Suppress console.error for expected error boundaries in tests
 const originalError = console.error;
